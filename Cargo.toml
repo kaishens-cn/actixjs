@@ -1,0 +1,41 @@
+[package]
+edition = "2021"
+name = "kaishens_cn_actixjs"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { git = "https://github.com/cherishs001/napi-rs.git", default-features = false, features = ["napi4", "serde-json", "compat-mode"] }
+napi-derive = "2.12.2"
+actix-http = "3.3.1"
+actix-service = "2.0.2"
+actix-server = "2.2.0"
+actix-rt = "2.8.0"
+bytes = "1.4.0"
+futures = "0.3.28"
+http = "0.2.9"
+tokio = { version = "1.27.0", features = ["full"] }
+parking_lot = "0.12.1"
+serde_json = "1.0.96"
+extreme = "666.666.666666"
+num_cpus = "1.15.0"
+lazy_static = "1.4.0"
+tera = "1.18.1"
+matchit = "0.7.0"
+halfbrown = "0.1.18"
+simdutf8 = "0.1.4"
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+mimalloc-rust = { version = "0.2" }
+
+[target.'cfg(all(target_os = "linux", not(all(target_env = "musl", target_arch = "aarch64"))))'.dependencies]
+mimalloc-rust = { version = "0.2", features = ["local-dynamic-tls"] }
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true

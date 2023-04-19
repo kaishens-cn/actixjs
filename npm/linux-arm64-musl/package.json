@@ -1,0 +1,21 @@
+{
+  "name": "@kaishens.cn/actixjs-linux-arm64-musl",
+  "version": "0.0.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "actixjs.linux-arm64-musl.node",
+  "files": [
+    "actixjs.linux-arm64-musl.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "libc": [
+    "musl"
+  ]
+}
