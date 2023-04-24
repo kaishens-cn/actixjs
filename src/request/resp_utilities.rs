@@ -106,6 +106,7 @@ impl RequestBlob {
                 // todo 针对不同类型的body，转换成相对应map的bytes
                 //  application/json
                 serde_json::from_slice::<HashMap<String, Value>>(res).unwrap()
+                //
                 // String::from_utf8(res.clone().into()).unwrap()
             },
             None => HashMap::new(),
