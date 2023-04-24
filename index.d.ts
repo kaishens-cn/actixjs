@@ -181,5 +181,5 @@ export class RequestBlob {
    */
   getAllHeaders(): {[key: string]: string}
   /** Retrieve the raw body bytes in a Uint8Array to be used */
-  getBody(): string
+  getBody(): {[key: string]: any}
 }

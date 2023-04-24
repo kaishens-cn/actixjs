@@ -1,5 +1,7 @@
+use std::collections::HashMap;
 use actix_http::HttpMessage;
 use napi::bindgen_prelude::Uint8Array;
+use serde_json::Value;
 
 use crate::{
     napi::{buff_str::BuffStr, fast_str::FastStr, halfbrown::HalfBrown},
@@ -96,15 +98,17 @@ impl RequestBlob {
     }
 
     #[inline(always)]
-    #[napi(ts_return_type="string")]
+    #[napi(ts_return_type="{[key: string]: any}")]
     /// Retrieve the raw body bytes in a Uint8Array to be used
-    pub fn get_body(&mut self) -> String {
-        //todo 针对不同类型的body，转换成相对应map的bytes
+    pub fn get_body(&mut self) -> HashMap<String, Value> {
         match &self.body {
             Some(res) => {
-                String::from_utf8(res.clone().into()).unwrap()
+                // todo 针对不同类型的body，转换成相对应map的bytes
+                //  application/json
+                serde_json::from_slice::<HashMap<String, Value>>(res).unwrap()
+                // String::from_utf8(res.clone().into()).unwrap()
             },
-            None => "".to_string(),
+            None => HashMap::new(),
         }
     }
 }

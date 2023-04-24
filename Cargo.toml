@@ -25,7 +25,7 @@ num_cpus = "1.15.0"
 lazy_static = "1.4.0"
 tera = "1.18.1"
 matchit = "0.7.0"
-halfbrown = "0.1.18"
+halfbrown = "0.2.0"
 simdutf8 = "0.1.4"
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
