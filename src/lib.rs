@@ -17,6 +17,7 @@ mod templates;
 mod object_pool;
 mod tokio_workers;
 mod extras;
+mod form;
 
 pub use request::node_functions::*;
 pub use router::node_functions::*;

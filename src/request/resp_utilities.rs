@@ -3,10 +3,8 @@ use actix_http::HttpMessage;
 use napi::bindgen_prelude::Uint8Array;
 use serde_json::Value;
 
-use crate::{
-    napi::{buff_str::BuffStr, fast_str::FastStr, halfbrown::HalfBrown},
-    router,
-};
+use crate::{napi::{buff_str::BuffStr, fast_str::FastStr, halfbrown::HalfBrown}, router};
+use crate::form::{multipart::multipart, parse::get_boundary};
 
 use super::{
     helpers::{convert_header_map, split_and_get_query_params},
@@ -46,12 +44,12 @@ impl RequestBlob {
             return false;
         }
 
-        self.status_code = Some(status);       
+        self.status_code = Some(status);
         true
     }
 
     #[inline(always)]
-    #[napi(ts_return_type="{[key: string]: string}")]
+    #[napi(ts_return_type = "{[key: string]: string}")]
     /// Get the query parameters as an object with each key and value
     /// this will only be null if an error has occurred
     pub fn get_query_params(&self) -> Option<HalfBrown<String, String>> {
@@ -60,7 +58,7 @@ impl RequestBlob {
     }
 
     #[inline(always)]
-    #[napi(ts_return_type="{[key: string]: string}")]
+    #[napi(ts_return_type = "{[key: string]: string}")]
     /// Get the url parameters as an object with each key and value
     /// this will only be null if an error has occurred
     pub fn get_url_params(&self) -> Option<HalfBrown<String, String>> {
@@ -88,8 +86,14 @@ impl RequestBlob {
         Some(header_val.to_str().ok()?.to_string())
     }
 
+    fn get_header_self(&self, name: String) -> Option<String> {
+        let header_val = self.get_data_val().headers().get(name)?;
+
+        Some(header_val.to_str().ok()?.to_string())
+    }
+
     #[inline(always)]
-    #[napi(ts_return_type="{[key: string]: string}")]
+    #[napi(ts_return_type = "{[key: string]: string}")]
     /// Get the url parameters as an object with each key and value
     /// this will only be null if an error has occurred
     pub fn get_all_headers(&self) -> HalfBrown<String, String> {
@@ -98,17 +102,23 @@ impl RequestBlob {
     }
 
     #[inline(always)]
-    #[napi(ts_return_type="{[key: string]: any}")]
+    #[napi(ts_return_type = "{[key: string]: any}")]
     /// Retrieve the raw body bytes in a Uint8Array to be used
     pub fn get_body(&mut self) -> HashMap<String, Value> {
         match &self.body {
             Some(res) => {
                 // todo 针对不同类型的body，转换成相对应map的bytes
                 //  application/json
-                serde_json::from_slice::<HashMap<String, Value>>(res).unwrap()
-                //
-                // String::from_utf8(res.clone().into()).unwrap()
-            },
+                let ct = self.get_header_self("content-type".to_string()).unwrap();
+                if ct.contains("application/json") {
+                    return serde_json::from_slice::<HashMap<String, Value>>(res).unwrap();
+                }
+                if ct.contains("multipart/form-data") {
+                    let boundary = get_boundary(ct.as_str());
+                    return multipart(res, boundary);
+                }
+                HashMap::new()
+            }
             None => HashMap::new(),
         }
     }
