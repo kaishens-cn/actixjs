@@ -58,3 +58,9 @@ test.serial('5. use form body', async (t) => {
   });
   t.is(res.data, `your name is ${name}!`)
 })
+
+test.serial('6. use html form body', async (t) => {
+  const name = 'kai';
+  const res = await axios.post(`${reqHost}/update/user`, `name=${name}`);
+  t.is(res.data, `your name is ${name}!`)
+})

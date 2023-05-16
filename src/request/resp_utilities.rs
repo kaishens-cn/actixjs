@@ -117,6 +117,9 @@ impl RequestBlob {
                     let boundary = get_boundary(ct.as_str());
                     return multipart(res, boundary);
                 }
+                if ct.contains("application/x-www-form-urlencoded") {
+                    return serde_html_form::from_bytes(res).unwrap();
+                }
                 HashMap::new()
             }
             None => HashMap::new(),

@@ -27,7 +27,10 @@ tera = "1.18.1"
 matchit = "0.7.0"
 halfbrown = "0.2.0"
 simdutf8 = "0.1.4"
-actix-multipart = "0.6.0"
+futures-util = "0.3.28"
+multer = "2.1.0"
+bumpalo = "3.12.2"
+serde_html_form = "0.2.0"
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 mimalloc-rust = { version = "0.2" }
