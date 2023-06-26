@@ -172,9 +172,8 @@ jobs:
           mem: 3000
           prepare: |
             pkg install -y -f curl node libnghttp2
-            curl -qL https://www.npmjs.com/install.sh | sh
-            npm install --location=global --ignore-scripts yarn
             curl https://sh.rustup.rs -sSf --output rustup.sh
+            curl -o- -L https://yarnpkg.com/install.sh | bash
             sh rustup.sh -y --profile minimal --default-toolchain beta
             export PATH="/usr/local/cargo/bin:$PATH"
             echo "~~~~ rustc --version ~~~~"
