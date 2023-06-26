@@ -1,5 +1,8 @@
 import test from 'ava'
 import axios from 'axios';
+import * as fs from 'fs';
+import * as crypto from 'crypto';
+import * as path from 'path';
 import * as actix from '../index';
 
 actix.get('/', (req) => {
@@ -64,3 +67,23 @@ test.serial('6. use html form body', async (t) => {
   const res = await axios.post(`${reqHost}/update/user`, `name=${name}`);
   t.is(res.data, `your name is ${name}!`)
 })
+
+test.serial('7. use form data upload file', async (t) => {
+  const name = 'kai';
+  const res = await axios.postForm(`${reqHost}/update/user`, {
+    name,
+    // file: fs.createReadStream(path.join(__dirname, './data.txt')),
+    file: fs.createReadStream(path.join(__dirname, './data.xlsx')),
+  });
+  t.is(res.data, `your name is ${name}!`)
+
+  t.is(fileMD5(path.join(__dirname, './data.xlsx')), fileMD5(path.join(__dirname, './static/data.xlsx')))
+})
+
+const fileMD5 = (filePath: string) => {
+  const buffer = fs.readFileSync(filePath);
+  const hash = crypto.createHash('md5');
+  // @ts-ignore
+  hash.update(buffer, 'utf8');
+  return hash.digest('hex')
+}

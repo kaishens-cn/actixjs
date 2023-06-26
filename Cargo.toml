@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { git = "https://github.com/cherishs001/napi-rs.git", default-features = false, features = ["napi4", "serde-json", "compat-mode"] }
+napi = { git = "https://github.com/cherishs001/napi-rs.git", default-features = false, features = ["napi4", "serde-json", "compat-mode", "async"] }
 napi-derive = "2.12.2"
 actix-http = "3.3.1"
 actix-service = "2.0.2"
@@ -31,6 +31,10 @@ futures-util = "0.3.28"
 multer = "2.1.0"
 bumpalo = "3.12.2"
 serde_html_form = "0.2.0"
+mime = "0.3.17"
+httparse = "1.8.0"
+memchr = "2.5.0"
+futures_codec = "0.4.1"
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 mimalloc-rust = { version = "0.2" }

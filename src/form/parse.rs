@@ -1,40 +1,27 @@
-pub fn get_boundary(ct: &str) -> &str {
-    if ct.len() == 0 {
-        return "";
+use crate::form::error::Error;
+use crate::form::constants::ContentDispositionAttr;
+
+pub fn parse_boundary<T: AsRef<str>>(content_type: T) -> Result<String, Error> {
+    let m = content_type
+        .as_ref()
+        .parse::<mime::Mime>()
+        .map_err(Error::DecodeContentType)?;
+
+    if !(m.type_() == mime::MULTIPART && m.subtype() == mime::FORM_DATA) {
+        return Err(Error::NoMultipart);
     }
 
-    let part: Vec<&str> = ct.split("boundary=").collect();
-    if part.len() == 0 {
-        return "";
-    }
-
-    return part[part.len() - 1];
+    m.get_param(mime::BOUNDARY)
+        .map(|name| name.as_str().to_owned())
+        .ok_or(Error::NoBoundary)
 }
 
-pub fn get_disposition(str: &str) -> String {
-    let cd_key = "Content-Disposition:";
-    let name_key = "name=\"";
-    let mut key_tmp = "".to_string();
-    let mut cd_value = "".to_string();
-    let mut name_value = "".to_string();
-    for (i, &item) in str.as_bytes().iter().enumerate() {
-        let s = (item as char).to_string();
-        if cd_key == key_tmp {
-            if s != " " && s != ";" {
-                cd_value = cd_value + &*s;
-            }
-            if s == ";" {
-                key_tmp = "".to_string();
-            }
-        } else if name_key == key_tmp {
-            if i != str.as_bytes().len() - 1 {
-                name_value = name_value + &*s;
-            }
-        } else {
-            if s != " " {
-                key_tmp = key_tmp + &*s;
-            }
-        }
-    }
-    return name_value;
+pub fn parse_disposition<T: AsRef<str>>(content: T) -> (Option<String>, Option<String>) {
+    let val = content.as_ref().as_bytes();
+    let name = ContentDispositionAttr::Name.extract_from(val).and_then(|attr| std::str::from_utf8(attr).ok()).map(String::from);
+    let filename = ContentDispositionAttr::FileName.extract_from(val).and_then(|attr| std::str::from_utf8(attr).ok()).map(String::from);
+    let content_type = ContentDispositionAttr::ContentType.extract_from(val).and_then(|attr| std::str::from_utf8(attr).ok()).map(String::from);
+
+    println!("{:?}", content_type);
+    return (name, filename);
 }
