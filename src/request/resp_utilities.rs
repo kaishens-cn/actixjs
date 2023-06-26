@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use actix_http::HttpMessage;
-use napi::bindgen_prelude::Uint8Array;
+// use bytes::Bytes;
+// use napi::bindgen_prelude::Uint8Array;
 use serde_json::Value;
 
 use crate::{napi::{buff_str::BuffStr, fast_str::FastStr, halfbrown::HalfBrown}, router};
-use crate::form::{multipart::multipart, parse::get_boundary};
+use crate::form::{multipart::multipart};
+use crate::form::parse::parse_boundary;
 
 use super::{
     helpers::{convert_header_map, split_and_get_query_params},
@@ -86,7 +88,7 @@ impl RequestBlob {
         Some(header_val.to_str().ok()?.to_string())
     }
 
-    fn get_header_self(&self, name: String) -> Option<String> {
+    fn get_header_self(&self, name: &str) -> Option<String> {
         let header_val = self.get_data_val().headers().get(name)?;
 
         Some(header_val.to_str().ok()?.to_string())
@@ -109,13 +111,16 @@ impl RequestBlob {
             Some(res) => {
                 // todo 针对不同类型的body，转换成相对应map的bytes
                 //  application/json
-                let ct = self.get_header_self("content-type".to_string()).unwrap();
+                let ct = self.get_header_self("content-type").unwrap();
                 if ct.contains("application/json") {
                     return serde_json::from_slice::<HashMap<String, Value>>(res).unwrap();
                 }
                 if ct.contains("multipart/form-data") {
-                    let boundary = get_boundary(ct.as_str());
-                    return multipart(res, boundary);
+                    let boundary = parse_boundary(ct).unwrap();
+                    return multipart(res.clone(), boundary);
+                }
+                if ct.contains("application/x-www-form-urlencoded") {
+                    return serde_html_form::from_bytes(res).unwrap();
                 }
                 HashMap::new()
             }
