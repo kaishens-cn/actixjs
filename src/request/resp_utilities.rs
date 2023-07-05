@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use actix_http::HttpMessage;
+use bytes::Bytes;
 // use bytes::Bytes;
 // use napi::bindgen_prelude::Uint8Array;
 use serde_json::Value;
@@ -125,6 +126,18 @@ impl RequestBlob {
                 HashMap::new()
             }
             None => HashMap::new(),
+        }
+    }
+
+    #[inline(always)]
+    #[napi(ts_return_type = "string")]
+    /// Retrieve the raw body bytes in a Uint8Array to be used
+    pub fn get_body_raw(&mut self) -> String {
+        match &self.body {
+            Some(res) => {
+                String::from_utf8(res.clone().into()).unwrap()
+            }
+            None => "".to_string(),
         }
     }
 }
