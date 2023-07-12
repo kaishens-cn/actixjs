@@ -24,6 +24,11 @@ actix.post('/update/user', (req) => {
   req.sendText(`your name is ${name}!`);
 });
 
+actix.post('/update/user/xml', (req) => {
+    const { name } = req.getBody();
+    req.sendText(`your name is ${name['$value']}!`);
+});
+
 const host = '127.0.0.1:8080'
 const reqHost = `http://${host}`;
 
@@ -78,6 +83,20 @@ test.serial('7. use form data upload file', async (t) => {
   t.is(res.data, `your name is ${name}!`)
 
   t.is(fileMD5(path.join(__dirname, './data.xlsx')), fileMD5(path.join(__dirname, './static/data.xlsx')))
+})
+
+test.serial('8. post xml data', async (t) => {
+  const name = 'kai';
+  const res = await axios.request({
+    method: 'POST',
+    maxBodyLength: Infinity,
+    url: `${reqHost}/update/user/xml`,
+    headers: {
+      'Content-Type': 'application/xml'
+    },
+    data: `<xml><name>${name}</name></xml>`
+  });
+  t.is(res.data, `your name is ${name}!`);
 })
 
 const fileMD5 = (filePath: string) => {

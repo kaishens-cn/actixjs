@@ -1,4 +1,4 @@
-use futures::Future;
+// use futures::Future;
 use tokio::runtime::{Runtime, Builder};
 use lazy_static::lazy_static;
 
@@ -13,9 +13,9 @@ lazy_static!{
     };
 }
 
-pub fn spawn<F>(fut: F)
-where
-  F: 'static + Send + Future<Output = ()>,
-{
-  RUNNER.spawn(fut);
-}
+// pub fn spawn<F>(fut: F)
+// where
+//   F: 'static + Send + Future<Output = ()>,
+// {
+//   RUNNER.spawn(fut);
+// }

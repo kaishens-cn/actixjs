@@ -4,7 +4,7 @@ use napi::bindgen_prelude::*;
 use crate::{router::store::add_new_route, napi::tsfn::ThreadsafeFunction};
 
 #[napi]
-/// The different HTTP methods 
+/// The different HTTP methods
 pub enum Methods {
   GET,
   POST,
@@ -84,4 +84,13 @@ pub fn put(route: String, callback: JsFunction) -> Result<()> {
 /// needed to get the information from the request
 pub fn patch(route: String, callback: JsFunction) -> Result<()> {
   new_route(route, Methods::PATCH, callback)
+}
+
+#[cold]
+#[napi(ts_args_type = "route: string, callback: (result: RequestBlob) => void")]
+/// Adds a handler for the a delete request
+/// once the endpoint has been hit. The callback includes a RequestBlob which has all the methods
+/// needed to get the information from the request
+pub fn del(route: String, callback: JsFunction) -> Result<()> {
+    new_route(route, Methods::DELETE, callback)
 }

@@ -4,6 +4,7 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 /// A set of errors that can occur during parsing multipart stream and in other
 /// operations.
+#[allow(dead_code)]
 #[non_exhaustive]
 pub enum Error {
     /// An unknown field is detected when multipart
