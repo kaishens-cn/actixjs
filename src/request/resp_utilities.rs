@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 use actix_http::HttpMessage;
-use bytes::Bytes;
-// use bytes::Bytes;
-// use napi::bindgen_prelude::Uint8Array;
 use serde_json::Value;
 
 use crate::{napi::{buff_str::BuffStr, fast_str::FastStr, halfbrown::HalfBrown}, router};
 use crate::form::{multipart::multipart};
 use crate::form::parse::parse_boundary;
+
+use serde_xml_rs::{from_str};
 
 use super::{
     helpers::{convert_header_map, split_and_get_query_params},
@@ -122,6 +121,12 @@ impl RequestBlob {
                 }
                 if ct.contains("application/x-www-form-urlencoded") {
                     return serde_html_form::from_bytes(res).unwrap();
+                }
+                if ct.contains("application/xml") {
+                    let item: HashMap<String, Value> = from_str(String::from_utf8_lossy(res).as_ref()).unwrap();
+                    // 去掉item中的$value
+
+                    return item;
                 }
                 HashMap::new()
             }
