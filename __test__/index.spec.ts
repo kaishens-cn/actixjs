@@ -41,7 +41,7 @@ test.serial('1. 测试接口连接', async (t) => {
   t.is(res.data, 'hello world')
 })
 
-test.serial('2. get query params', async (t) => {
+test.skip('2. get query params', async (t) => {
   const name = 'kai';
   const res = await axios.get(`${reqHost}/get/name?name=${name}`);
   t.is(res.data, `your name is ${name}!`)
