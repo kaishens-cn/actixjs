@@ -17,6 +17,8 @@ export const enum Methods {
  * needed to get the information from the request
  */
 export function newRoute(route: string, method: Methods, callback: (result: RequestBlob) => void): void
+/** Use this to clean all route in the server */
+export function cleanupRouter(): void
 /**
  * Adds a handler for the a GET request
  * once the endpoint has been hit. The callback includes a RequestBlob which has all the methods

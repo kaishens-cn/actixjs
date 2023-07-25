@@ -2,6 +2,7 @@ use actix_http::Method;
 use napi::bindgen_prelude::*;
 
 use crate::{router::store::add_new_route, napi::tsfn::ThreadsafeFunction};
+use crate::router::store::cleanup_route;
 
 #[napi]
 /// The different HTTP methods
@@ -48,6 +49,14 @@ pub fn new_route(route: String, method: Methods, callback: JsFunction) -> Result
   let tsfn = ThreadsafeFunction::create(callback.0.env, callback.0.value, 1024)?;
 
   add_new_route(&route, method, tsfn)
+}
+
+#[cold]
+#[napi]
+/// Use this to clean all route in the server
+pub fn cleanup_router() -> Result<()> {
+  cleanup_route();
+  Ok(())
 }
 
 #[cold]

@@ -252,10 +252,11 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { Methods, newRoute, get, post, put, patch, del, RequestBlob, start, startWithWorkerCount, startWithConfig, stop, loadNewTemplate, reloadGroup, getThreadAffinity } = nativeBinding
+const { Methods, newRoute, cleanupRouter, get, post, put, patch, del, RequestBlob, start, startWithWorkerCount, startWithConfig, stop, loadNewTemplate, reloadGroup, getThreadAffinity } = nativeBinding
 
 module.exports.Methods = Methods
 module.exports.newRoute = newRoute
+module.exports.cleanupRouter = cleanupRouter
 module.exports.get = get
 module.exports.post = post
 module.exports.put = put
