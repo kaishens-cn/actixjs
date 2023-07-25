@@ -26,19 +26,19 @@ pub fn multipart(body: Bytes, boundary: String) -> HashMap<String, Value> {
                 let name = field.name().unwrap().to_string();
                 let file_name = field.file_name();
 
-                if file_name == None {
+                if file_name.is_none() {
                     let content = field.text().await.unwrap();
                     map.insert(name, Value::from(content));
                 } else {
                     let filename = file_name.unwrap().to_string();
                     let content = field.bytes().await.unwrap();
                     let filepath = format!("./__test__/static/{}", filename);
-                    map.insert(name, Value::from(json!({ "filename": filename, "filepath":  filepath})));
+                    map.insert(name, json!({ "filename": filename, "filepath":  filepath}));
                     fs::write(filepath, content).unwrap();
                 }
             }
 
-            return map;
+            map
         }).await.unwrap()
     })
 }

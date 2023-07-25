@@ -10,11 +10,11 @@ crate-type = ["cdylib"]
 # Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { git = "https://github.com/cherishs001/napi-rs.git", default-features = false, features = ["napi4", "serde-json", "compat-mode", "async"] }
 napi-derive = "2.12.2"
-rustls = "0.20.8"
+rustls = { git = "https://github.com/cherishs001/rustls.git#d49213c3", branch = "dev/arm" }
 tracing = { version = "0.1.30", default-features = false, features = ["log"] }
 rustls-pemfile = "1.0.2"
-actix-tls = { version = "3.0.3", features = ["rustls"] }
-actix-http = { version = "3.3.1", features = ["rustls", "http2"] }
+actix-tls = { git = "https://github.com/cherishs001/actix-net.git#2fe3fe3c", features = ["rustls"] }
+actix-http = { git = "https://github.com/cherishs001/actix-web.git#3216ddb6", features = ["rustls", "http2"] }
 actix-service = "2.0.2"
 actix-server = "2.2.0"
 actix-rt = "2.8.0"

@@ -21,7 +21,7 @@ pub fn load_tls_certs(user_config: &super::config::ServerConfig) -> Result<Serve
         .map(Certificate)
         .collect();
     let keys = read_one(key_file).unwrap().unwrap();
-    return match keys {
+    match keys {
         Item::X509Certificate(key_chain) => {
             Ok(config.with_single_cert(cert_chain, PrivateKey(key_chain)).unwrap())
         }
