@@ -2,9 +2,9 @@ use std::{cell::UnsafeCell, mem::MaybeUninit};
 
 use actix_http::Method;
 use halfbrown::HashMap;
-use matchit::{Router, Params};
+use matchit::{Params, Router};
 
-use crate::{types::CallBackFunction, napi::halfbrown::HalfBrown};
+use crate::{napi::halfbrown::HalfBrown, types::CallBackFunction};
 
 struct RouteCell(UnsafeCell<MaybeUninit<ReadRoutes>>);
 
@@ -30,7 +30,7 @@ impl ReadRoutes {
       Method::PUT => Some(&self.put),
       Method::PATCH => Some(&self.patch),
       Method::DELETE => Some(&self.delete),
-      _ => None
+      _ => None,
     }
   }
 }

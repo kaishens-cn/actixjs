@@ -1,8 +1,8 @@
 use actix_http::Method;
 use napi::bindgen_prelude::*;
 
-use crate::{router::store::add_new_route, napi::tsfn::ThreadsafeFunction};
 use crate::router::store::cleanup_route;
+use crate::{napi::tsfn::ThreadsafeFunction, router::store::add_new_route};
 
 #[napi]
 /// The different HTTP methods
@@ -18,24 +18,24 @@ impl Methods {
   #[inline(always)]
   pub fn convert_from_str(method: &str) -> Option<Self> {
     match method {
-        "GET" => Some(Methods::GET),
-        "POST" => Some(Methods::POST),
-        "PUT" => Some(Methods::PUT),
-        "PATCH" => Some(Methods::PATCH),
-        "DELETE" => Some(Methods::DELETE),
-        _ => None
+      "GET" => Some(Methods::GET),
+      "POST" => Some(Methods::POST),
+      "PUT" => Some(Methods::PUT),
+      "PATCH" => Some(Methods::PATCH),
+      "DELETE" => Some(Methods::DELETE),
+      _ => None,
     }
   }
 
   #[inline(always)]
   pub fn convert_from_actix(method: Method) -> Option<Self> {
     match method {
-        Method::GET => Some(Methods::GET),
-        Method::POST => Some(Methods::POST),
-        Method::PUT => Some(Methods::PUT),
-        Method::PATCH => Some(Methods::PATCH),
-        Method::DELETE => Some(Methods::DELETE),
-        _ => None
+      Method::GET => Some(Methods::GET),
+      Method::POST => Some(Methods::POST),
+      Method::PUT => Some(Methods::PUT),
+      Method::PATCH => Some(Methods::PATCH),
+      Method::DELETE => Some(Methods::DELETE),
+      _ => None,
     }
   }
 }
@@ -101,5 +101,5 @@ pub fn patch(route: String, callback: JsFunction) -> Result<()> {
 /// once the endpoint has been hit. The callback includes a RequestBlob which has all the methods
 /// needed to get the information from the request
 pub fn del(route: String, callback: JsFunction) -> Result<()> {
-    new_route(route, Methods::DELETE, callback)
+  new_route(route, Methods::DELETE, callback)
 }
