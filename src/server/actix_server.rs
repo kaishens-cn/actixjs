@@ -147,11 +147,33 @@ async fn create_sever(config: ServerConfig) -> std::io::Result<()> {
     srv.await
 }
 
+
+async fn create_tls_server(config: ServerConfig) -> std::io::Result<()> {
+    let pool_size = config.pool_per_worker_size;
+    let certs = super::tls::load_tls_certs(&config).unwrap();
+
+    let srv = Server::build()
+        .backlog(config.backlog as u32)
+        .bind("walker_server_h1", &config.url, move || {
+            HttpService::build().finish(AppFactory(pool_size)).rustls(certs.clone())
+        })?
+        .workers(config.worker_threads)
+        .run();
+
+    attach_server_handle(srv.handle());
+
+    srv.await
+}
+
 fn run_server(config: ServerConfig) -> std::io::Result<()> {
     // Lets set net reciever priority here
     try_pin_priority();
 
-    actix_rt::System::new().block_on(create_sever(config))
+    if config.tls {
+        actix_rt::System::new().block_on(create_tls_server(config))
+    } else {
+        actix_rt::System::new().block_on(create_sever(config))
+    }
 }
 
 #[cold]
@@ -159,7 +181,7 @@ pub fn start_server(config: ServerConfig, env: sys::napi_env) -> napi::Result<()
     if !try_own_start() {
         return Err(make_js_error("Server already started"));
     }
-    
+
     reset_thread_affinity();
     initialise_reader();
     unsafe { build_up_pool(env, config.get_pool_size())?; }

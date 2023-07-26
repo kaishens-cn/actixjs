@@ -2,7 +2,7 @@ use matchit::Router;
 use napi::bindgen_prelude::*;
 
 use lazy_static::lazy_static;
-use parking_lot::RwLock;
+use parking_lot::{RwLock, Mutex};
 
 use crate::{types::CallBackFunction, Methods};
 
@@ -12,7 +12,10 @@ type ReaderLookup = Router<CallBackFunction>;
 type ThreadSafeLookup = RwLock<Router<CallBackFunction>>;
 
 lazy_static! {
-  static ref GLOBAL_DATA: InternalRoutes = InternalRoutes::new_manager();
+  static ref GLOBAL_DATA: Mutex<InternalRoutes> = {
+        let tmp = InternalRoutes::new_manager();
+        Mutex::new(tmp)
+    };
 }
 
 pub fn thread_to_reader(input: &ThreadSafeLookup) -> ReaderLookup {
@@ -61,18 +64,35 @@ impl InternalRoutes {
       delete: thread_to_reader(&self.delete),
     }
   }
+
+  #[cold]
+  fn cleanup(&mut self) {
+    self.get = RwLock::new(Router::new());
+    self.post = RwLock::new(Router::new());
+    self.put = RwLock::new(Router::new());
+    self.patch = RwLock::new(Router::new());
+    self.delete = RwLock::new(Router::new());
+  }
 }
 
 #[cold]
 pub fn initialise_reader() {
-  let new_reader = GLOBAL_DATA.as_reader_type();
+  let gd = GLOBAL_DATA.lock();
+  let new_reader = gd.as_reader_type();
 
   write_reader(new_reader);
 }
 
 #[cold]
+pub fn cleanup_route() {
+  let mut gd = GLOBAL_DATA.lock();
+  gd.cleanup()
+}
+
+#[cold]
 pub fn add_new_route(route: &str, method: Methods, function: CallBackFunction) -> Result<()> {
-  let lock = GLOBAL_DATA.get_rw_from_method(method);
+  let gd = GLOBAL_DATA.lock();
+  let lock = gd.get_rw_from_method(method);
   let mut writing = lock
     .write();
 

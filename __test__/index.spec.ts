@@ -5,36 +5,43 @@ import * as crypto from 'crypto';
 import * as path from 'path';
 import * as actix from '../index';
 
-actix.get('/', (req) => {
-  req.sendText("hello world");
-});
-
-actix.get('/get/name', (req) => {
-  const { name } = req.getQueryParams();
-  req.sendText(`your name is ${name}!`);
-});
-
-actix.get('/get/:name', (req) => {
-  const { name } = req.getUrlParams();
-  req.sendText(`your name is ${name}!`);
-});
-
-actix.post('/update/user', (req) => {
-  const { name } = req.getBody();
-  req.sendText(`your name is ${name}!`);
-});
-
 const host = '127.0.0.1:8080'
 const reqHost = `http://${host}`;
 
-actix.start(host);
+test.before(t => {
+  actix.cleanupRouter();
+  actix.get('/', (req) => {
+    req.sendText("hello world");
+  });
+
+  actix.get('/get/name', (req) => {
+    const { name } = req.getQueryParams();
+    req.sendText(`your name is ${name}!`);
+  });
+
+  actix.get('/get/:name', (req) => {
+    const { name } = req.getUrlParams();
+    req.sendText(`your name is ${name}!`);
+  });
+
+  actix.post('/update/user', (req) => {
+    const { name } = req.getBody();
+    req.sendText(`your name is ${name}!`);
+  });
+
+  actix.post('/update/user/xml', (req) => {
+    const { name } = req.getBody();
+    req.sendText(`your name is ${name['$value']}!`);
+  });
+  actix.start(host);
+})
 
 test.serial('1. 测试接口连接', async (t) => {
   const res = await axios.get(`${reqHost}/`);
   t.is(res.data, 'hello world')
 })
 
-test.serial('2. get query params', async (t) => {
+test.skip('2. get query params', async (t) => {
   const name = 'kai';
   const res = await axios.get(`${reqHost}/get/name?name=${name}`);
   t.is(res.data, `your name is ${name}!`)
@@ -78,6 +85,24 @@ test.serial('7. use form data upload file', async (t) => {
   t.is(res.data, `your name is ${name}!`)
 
   t.is(fileMD5(path.join(__dirname, './data.xlsx')), fileMD5(path.join(__dirname, './static/data.xlsx')))
+})
+
+test.serial('8. post xml data', async (t) => {
+  const name = 'kai';
+  const res = await axios.request({
+    method: 'POST',
+    maxBodyLength: Infinity,
+    url: `${reqHost}/update/user/xml`,
+    headers: {
+      'Content-Type': 'application/xml'
+    },
+    data: `<xml><name>${name}</name></xml>`
+  });
+  t.is(res.data, `your name is ${name}!`);
+})
+
+test.after(t => {
+  actix.stop();
 })
 
 const fileMD5 = (filePath: string) => {

@@ -78,7 +78,7 @@ fn pin_thread_inner() {
         tracker.curr_index = tracker.min;
     }
 
-    if affinity::set_thread_affinity(&[to_set]).is_err() {
+    if affinity::set_thread_affinity([to_set]).is_err() {
         println!("Error getting afinity");
     }
 }
@@ -104,7 +104,7 @@ pub fn try_pin_non_priority() {
         tracker.curr_index = tracker.min;
     }
 
-    if affinity::set_thread_affinity(&[to_set]).is_err() {
+    if affinity::set_thread_affinity([to_set]).is_err() {
         println!("werror getting afinity");
     }
 }
