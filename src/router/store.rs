@@ -2,7 +2,7 @@ use matchit::Router;
 use napi::bindgen_prelude::*;
 
 use lazy_static::lazy_static;
-use parking_lot::{RwLock, Mutex};
+use parking_lot::{Mutex, RwLock};
 
 use crate::{types::CallBackFunction, Methods};
 
@@ -13,9 +13,9 @@ type ThreadSafeLookup = RwLock<Router<CallBackFunction>>;
 
 lazy_static! {
   static ref GLOBAL_DATA: Mutex<InternalRoutes> = {
-        let tmp = InternalRoutes::new_manager();
-        Mutex::new(tmp)
-    };
+    let tmp = InternalRoutes::new_manager();
+    Mutex::new(tmp)
+  };
 }
 
 pub fn thread_to_reader(input: &ThreadSafeLookup) -> ReaderLookup {
@@ -93,8 +93,7 @@ pub fn cleanup_route() {
 pub fn add_new_route(route: &str, method: Methods, function: CallBackFunction) -> Result<()> {
   let gd = GLOBAL_DATA.lock();
   let lock = gd.get_rw_from_method(method);
-  let mut writing = lock
-    .write();
+  let mut writing = lock.write();
 
   writing
     .insert(route, function)
