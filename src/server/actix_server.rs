@@ -1,12 +1,13 @@
 use std::{cell::UnsafeCell, convert::Infallible, rc::Rc};
 
-use actix_http::{HttpService, Request, Response};
+use actix_http::{HttpService, KeepAlive, Request, Response};
 use actix_server::Server;
 use actix_service::{Service, ServiceFactory};
 use bytes::Bytes;
 use futures::future::LocalBoxFuture;
 use http::HeaderValue;
 use napi::sys;
+use std::time::Duration;
 use tokio::sync::oneshot;
 
 use crate::{
@@ -139,7 +140,11 @@ async fn create_sever(config: ServerConfig) -> std::io::Result<()> {
   let srv = Server::build()
     .backlog(config.backlog as u32)
     .bind("actix_server_h1", &config.url, move || {
-      HttpService::build().finish(AppFactory(pool_size)).tcp()
+      HttpService::build()
+        .keep_alive(KeepAlive::Os)
+        .client_request_timeout(Duration::ZERO)
+        .finish(AppFactory(pool_size))
+        .tcp()
     })?
     .workers(config.worker_threads)
     .run();
@@ -157,6 +162,8 @@ async fn create_tls_server(config: ServerConfig) -> std::io::Result<()> {
     .backlog(config.backlog as u32)
     .bind("walker_server_h1", &config.url, move || {
       HttpService::build()
+        .keep_alive(KeepAlive::Os)
+        .client_request_timeout(Duration::ZERO)
         .finish(AppFactory(pool_size))
         .rustls(certs.clone())
     })?
